@@ -140,10 +140,12 @@ textarea::placeholder { color: var(--muted); }
 .diff-side-by-side {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
 }
 .diff-col {
   overflow: visible;
   min-width: 0;
+  padding-top: 12px;
 }
 .diff-col:first-child {
   border-right: 1px solid var(--border);
@@ -187,7 +189,7 @@ textarea::placeholder { color: var(--muted); }
 
 .line-content {
   flex: 1;
-  padding: 0 10px 0 6px;
+  padding: 0 14px;
   word-break: break-all;
   white-space: pre-wrap;
 }
