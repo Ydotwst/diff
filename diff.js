@@ -16,12 +16,13 @@ function lcs(a, b) {
   return ops.reverse();
 }
 
-// Pair all consecutive del+ins for char-level inline comparison
+// Pair consecutive del+ins for inline comparison — skip empty lines to avoid blank rows
 function pairOps(ops) {
   const result = [];
   let i = 0;
   while (i < ops.length) {
-    if (ops[i].t === 'del' && i + 1 < ops.length && ops[i + 1].t === 'ins') {
+    if (ops[i].t === 'del' && i + 1 < ops.length && ops[i + 1].t === 'ins'
+        && ops[i].a !== '' && ops[i + 1].b !== '') {
       result.push({t: 'mod', a: ops[i].a, b: ops[i + 1].b});
       i += 2;
     } else {
@@ -74,8 +75,14 @@ function runDiff() {
   const a = document.getElementById('text-a').value;
   const b = document.getElementById('text-b').value;
 
-  const linesA = a === '' ? [] : a.split('\n');
-  const linesB = b === '' ? [] : b.split('\n');
+  const splitLines = s => {
+    const ls = s.split('\n');
+    while (ls.length && ls[ls.length - 1] === '') ls.pop();
+    while (ls.length && ls[0] === '') ls.shift();
+    return ls;
+  };
+  const linesA = splitLines(a);
+  const linesB = splitLines(b);
 
   const ops = pairOps(lcs(linesA, linesB));
 
@@ -86,11 +93,17 @@ function runDiff() {
     if (op.t === 'eq') {
       groups.push({...op, aNo, bNo}); aNo++; bNo++;
     } else if (op.t === 'del') {
-      const {leftHtml} = inlineDiff(op.a, '');
-      groups.push({...op, aNo, bNo: null, leftHtml}); aNo++;
+      if (op.a !== '') {
+        const {leftHtml} = inlineDiff(op.a, '');
+        groups.push({...op, aNo, bNo: null, leftHtml});
+      }
+      aNo++;
     } else if (op.t === 'ins') {
-      const {rightHtml} = inlineDiff('', op.b);
-      groups.push({...op, aNo: null, bNo, rightHtml}); bNo++;
+      if (op.b !== '') {
+        const {rightHtml} = inlineDiff('', op.b);
+        groups.push({...op, aNo: null, bNo, rightHtml});
+      }
+      bNo++;
     } else { // mod
       const {leftHtml, rightHtml} = inlineDiff(op.a, op.b);
       groups.push({...op, aNo, bNo, leftHtml, rightHtml}); aNo++; bNo++;
@@ -99,6 +112,17 @@ function runDiff() {
 
   const output = document.getElementById('output');
   output.innerHTML = renderSideBySide(groups);
+
+  // Stats
+  const statsArea = document.getElementById('stats-area');
+  statsArea.style.display = 'grid';
+  const setStats = (prefix, text) => {
+    document.getElementById(`stat-${prefix}-chars`).textContent    = text.length.toLocaleString();
+    document.getElementById(`stat-${prefix}-spaces`).textContent   = (text.match(/[^\S\n]/g)  || []).length.toLocaleString();
+    document.getElementById(`stat-${prefix}-newlines`).textContent = (text.match(/\n/g)        || []).length.toLocaleString();
+  };
+  setStats('a', a);
+  setStats('b', b);
 }
 
 function renderSideBySide(groups) {
@@ -115,28 +139,24 @@ function renderSideBySide(groups) {
 
   for (const op of groups) {
     if (op.t === 'eq') {
-      leftHtml  += `<div class="diff-line eq"><span class="line-no">${op.aNo}</span><span class="line-content">${esc(op.a)}</span></div>`;
-      rightHtml += `<div class="diff-line eq"><span class="line-no">${op.bNo}</span><span class="line-content">${esc(op.b)}</span></div>`;
+      leftHtml  += `<div class="diff-line eq"><span class="line-content">${esc(op.a)}</span></div>`;
+      rightHtml += `<div class="diff-line eq"><span class="line-content">${esc(op.b)}</span></div>`;
     } else if (op.t === 'del') {
-      leftHtml  += `<div class="diff-line changed"><span class="line-no">${op.aNo}</span><span class="line-content">${op.leftHtml}</span></div>`;
-      rightHtml += `<div class="diff-line empty"><span class="line-no"></span><span class="line-content"></span></div>`;
+      leftHtml  += `<div class="diff-line changed"><span class="line-content">${op.leftHtml}</span></div>`;
     } else if (op.t === 'ins') {
-      leftHtml  += `<div class="diff-line empty"><span class="line-no"></span><span class="line-content"></span></div>`;
-      rightHtml += `<div class="diff-line changed"><span class="line-no">${op.bNo}</span><span class="line-content">${op.rightHtml}</span></div>`;
+      rightHtml += `<div class="diff-line changed"><span class="line-content">${op.rightHtml}</span></div>`;
     } else { // mod
-      leftHtml  += `<div class="diff-line changed"><span class="line-no">${op.aNo}</span><span class="line-content">${op.leftHtml}</span></div>`;
-      rightHtml += `<div class="diff-line changed"><span class="line-no">${op.bNo}</span><span class="line-content">${op.rightHtml}</span></div>`;
+      leftHtml  += `<div class="diff-line changed"><span class="line-content">${op.leftHtml}</span></div>`;
+      rightHtml += `<div class="diff-line changed"><span class="line-content">${op.rightHtml}</span></div>`;
     }
   }
 
   return `
     <div class="diff-side-by-side">
       <div class="diff-col">
-        <div class="diff-col-header">変更前</div>
         ${leftHtml}
       </div>
       <div class="diff-col">
-        <div class="diff-col-header">変更後</div>
         ${rightHtml}
       </div>
     </div>`;
@@ -153,6 +173,7 @@ document.addEventListener('keydown', e => {
 document.getElementById('btn-clear').addEventListener('click', () => {
   document.getElementById('text-a').value = '';
   document.getElementById('text-b').value = '';
+  document.getElementById('stats-area').style.display = 'none';
   document.getElementById('output').innerHTML = `
     <div class="placeholder">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
