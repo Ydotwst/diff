@@ -140,10 +140,12 @@ textarea::placeholder { color: var(--muted); }
 .diff-side-by-side {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
 }
 .diff-col {
   overflow: visible;
   min-width: 0;
+  padding-top: 12px;
 }
 .diff-col:first-child {
   border-right: 1px solid var(--border);
@@ -187,7 +189,7 @@ textarea::placeholder { color: var(--muted); }
 
 .line-content {
   flex: 1;
-  padding: 0 10px 0 6px;
+  padding: 0 14px;
   word-break: break-all;
   white-space: pre-wrap;
 }
@@ -237,6 +239,40 @@ footer {
   width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
 }
 .legend-swatch.diff { background: var(--diff-hl); border: 1px solid var(--diff-word); }
+
+/* Stats area */
+.stats-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.stats-col {
+  padding: 12px 16px;
+}
+.stats-col:first-child {
+  border-right: 1px solid var(--border);
+}
+.stats-col-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.stats-row {
+  display: flex;
+  gap: 8px;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.stats-label { color: var(--muted); }
+.stats-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: var(--text);
+}
 
 @media (max-width: 700px) {
   main { padding: 12px 14px; }
