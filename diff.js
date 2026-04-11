@@ -16,15 +16,27 @@ function lcs(a, b) {
   return ops.reverse();
 }
 
-// Pair consecutive del+ins for inline comparison — skip empty lines
+// Pair consecutive del+ins blocks for inline comparison
 function pairOps(ops) {
   const result = [];
   let i = 0;
   while (i < ops.length) {
-    if (ops[i].t === 'del' && i + 1 < ops.length && ops[i + 1].t === 'ins'
-        && ops[i].a !== '' && ops[i + 1].b !== '') {
-      result.push({t: 'mod', a: ops[i].a, b: ops[i + 1].b});
-      i += 2;
+    if (ops[i].t === 'del') {
+      const removed = [];
+      while (i < ops.length && ops[i].t === 'del') { removed.push(ops[i]); i++; }
+      const added = [];
+      while (i < ops.length && ops[i].t === 'ins') { added.push(ops[i]); i++; }
+      const len = Math.max(removed.length, added.length);
+      for (let k = 0; k < len; k++) {
+        const d = removed[k], n = added[k];
+        if (d && n && d.a !== '' && n.b !== '') {
+          result.push({t: 'mod', a: d.a, b: n.b});
+        } else if (d) {
+          result.push(d);
+        } else {
+          result.push(n);
+        }
+      }
     } else {
       result.push(ops[i]);
       i++;
@@ -93,14 +105,12 @@ function runDiff() {
       groups.push({...op, aNo, bNo}); aNo++; bNo++;
     } else if (op.t === 'del') {
       if (op.a !== '') {
-        const {leftHtml} = inlineDiff(op.a, '');
-        groups.push({...op, aNo, bNo: null, leftHtml});
+        groups.push({...op, aNo, bNo: null, leftHtml: `<mark class="diff">${esc(op.a)}</mark>`});
       }
       aNo++;
     } else if (op.t === 'ins') {
       if (op.b !== '') {
-        const {rightHtml} = inlineDiff('', op.b);
-        groups.push({...op, aNo: null, bNo, rightHtml});
+        groups.push({...op, aNo: null, bNo, rightHtml: `<mark class="diff">${esc(op.b)}</mark>`});
       }
       bNo++;
     } else { // mod
@@ -111,6 +121,9 @@ function runDiff() {
 
   const output = document.getElementById('output');
   output.innerHTML = renderSideBySide(groups);
+
+  const stats = document.getElementById('char-stats');
+  stats.innerHTML = `<span>文字数：${a.length.toLocaleString()} 文字</span><span>文字数：${b.length.toLocaleString()} 文字</span>`;
 }
 
 function renderSideBySide(groups) {
@@ -123,31 +136,23 @@ function renderSideBySide(groups) {
     return '<div class="placeholder" style="min-height:120px"><span>差分なし — 2つのテキストは同一です</span></div>';
   }
 
-  let leftHtml = '', rightHtml = '';
+  let html = '<div class="diff-side-by-side">';
 
   for (const op of groups) {
     if (op.t === 'eq') {
-      leftHtml  += `<div class="diff-line eq"><span class="line-content">${esc(op.a)}</span></div>`;
-      rightHtml += `<div class="diff-line eq"><span class="line-content">${esc(op.b)}</span></div>`;
+      const s = esc(op.a);
+      html += `<div class="diff-row"><div class="diff-cell">${s}</div><div class="diff-cell">${s}</div></div>`;
     } else if (op.t === 'del') {
-      leftHtml  += `<div class="diff-line changed"><span class="line-content">${op.leftHtml}</span></div>`;
+      html += `<div class="diff-row"><div class="diff-cell del">${op.leftHtml}</div><div class="diff-cell empty"></div></div>`;
     } else if (op.t === 'ins') {
-      rightHtml += `<div class="diff-line changed"><span class="line-content">${op.rightHtml}</span></div>`;
+      html += `<div class="diff-row"><div class="diff-cell empty"></div><div class="diff-cell ins">${op.rightHtml}</div></div>`;
     } else { // mod
-      leftHtml  += `<div class="diff-line changed"><span class="line-content">${op.leftHtml}</span></div>`;
-      rightHtml += `<div class="diff-line changed"><span class="line-content">${op.rightHtml}</span></div>`;
+      html += `<div class="diff-row"><div class="diff-cell">${op.leftHtml}</div><div class="diff-cell">${op.rightHtml}</div></div>`;
     }
   }
 
-  return `
-    <div class="diff-side-by-side">
-      <div class="diff-col">
-        ${leftHtml}
-      </div>
-      <div class="diff-col">
-        ${rightHtml}
-      </div>
-    </div>`;
+  html += '</div>';
+  return html;
 }
 
 // ─── Event wiring ───────────────────────────────────────────────────────────
@@ -161,6 +166,7 @@ document.addEventListener('keydown', e => {
 document.getElementById('btn-clear').addEventListener('click', () => {
   document.getElementById('text-a').value = '';
   document.getElementById('text-b').value = '';
+  document.getElementById('char-stats').innerHTML = '';
   document.getElementById('output').innerHTML = `
     <div class="placeholder">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

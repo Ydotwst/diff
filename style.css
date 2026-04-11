@@ -138,66 +138,34 @@ textarea::placeholder { color: var(--muted); }
 
 /* Side-by-side view */
 .diff-side-by-side {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-}
-.diff-col {
-  overflow: visible;
-  min-width: 0;
-  padding-top: 12px;
-}
-.diff-col:first-child {
-  border-right: 1px solid var(--border);
-}
-.diff-col-header {
-  padding: 8px 14px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--muted);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  background: var(--surface);
-  z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Diff line */
-.diff-line {
-  display: flex;
-  align-items: baseline;
+.diff-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.diff-row:hover .diff-cell { filter: brightness(1.12); }
+
+.diff-cell {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.82rem;
   line-height: 1.6;
-  min-height: 1.6em;
-}
-.diff-line:hover { filter: brightness(1.12); }
-
-.line-no {
-  user-select: none;
-  width: 44px;
-  min-width: 44px;
-  padding: 0 8px;
-  text-align: right;
-  color: var(--muted);
-  font-size: 0.72rem;
-  opacity: 0.6;
-  flex-shrink: 0;
-}
-
-.line-content {
-  flex: 1;
   padding: 0 14px;
   word-break: break-all;
   white-space: pre-wrap;
+  min-height: 1.6em;
 }
 
-/* Line backgrounds */
-.diff-line.changed { background: transparent; }
-.diff-line.eq      { background: transparent; }
-.diff-line.empty   { background: transparent; opacity: 0.3; }
+.diff-cell:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.diff-cell.empty {
+  opacity: 0.3;
+}
 
 /* Inline char highlights */
 mark.diff {
@@ -205,6 +173,25 @@ mark.diff {
   color: var(--diff-word);
   border-radius: 3px;
   padding: 0 1px;
+}
+
+/* Char stats */
+.char-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.char-stats span {
+  padding: 6px 14px;
+}
+
+.char-stats span:first-child {
+  border-right: 1px solid var(--border);
 }
 
 /* Collapsed unchanged block */
