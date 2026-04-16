@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="7" fill="#0f1117"/>
+  <!-- Text lines (left pane) -->
+  <rect x="4" y="8"  width="10" height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <rect x="4" y="13" width="8"  height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <rect x="4" y="18" width="10" height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <rect x="4" y="23" width="6"  height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <!-- Divider -->
+  <rect x="15.5" y="5" width="1" height="22" rx="0.5" fill="#3a4060"/>
+  <!-- Text lines (right pane) with diff highlight -->
+  <rect x="18" y="8"  width="10" height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <rect x="18" y="13" width="10" height="2.5" rx="1.2" fill="#8ba4ff"/>
+  <rect x="18" y="18" width="10" height="2.5" rx="1.2" fill="#c8d0e0"/>
+  <rect x="18" y="23" width="7"  height="2.5" rx="1.2" fill="#8ba4ff"/>
+</svg>
