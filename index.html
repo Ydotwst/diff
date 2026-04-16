@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,10 @@
 <header>
   <h1>Text<span>Diff</span></h1>
   <div class="controls">
+    <div class="theme-switcher">
+      <button class="theme-btn" id="btn-light" data-theme="light">☀ Light</button>
+      <button class="theme-btn" id="btn-dark"  data-theme="dark"><svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Dark</button>
+    </div>
     <button class="btn" id="btn-swap" title="左右を入れ替え">⇄ 入れ替え</button>
     <button class="btn" id="btn-clear" title="すべてクリア">クリア</button>
     <button class="btn primary" id="btn-diff">比較する</button>
@@ -49,6 +53,7 @@ And a new line!"></textarea>
   <div class="legend">
     <div class="legend-item"><div class="legend-swatch diff"></div>差分箇所</div>
   </div>
+  <span class="footer-copy">&copy; 2026 Y (dot) WORKSTUDIO</span>
   <span style="margin-left:auto">TextDiff &mdash; ブラウザのみで動作、サーバー送信なし</span>
 </footer>
 
